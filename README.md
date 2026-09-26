@@ -10,6 +10,7 @@ put it online, then ask your AI agent (Claude, Cursor…) to build your idea on 
 1. **Click Deploy with Vercel** above. Sign in to GitHub and Vercel when asked.
    You get your own copy of the code, online in about 2 minutes. Nobody can
    sign in yet, so it's fine for it to be unfinished.
+   In the `sandbox-is` GitHub org? You can pick it as the owner when Vercel asks.
 2. **Build your idea.** Open your copy with your AI agent and ask it to run the
    app on your computer. You're signed in as "Test Member" (test sign-in), so you can
    build and try every page. Each change your agent pushes to GitHub goes online by itself.
