@@ -68,6 +68,10 @@ step checks what's already done. After the first time, it just saves and
 uploads their changes, and Vercel puts them online.
 
 - Not signed in? Ask them to run `! gh auth login` or `! npx vercel login`.
+- The first database needs them to accept Neon's terms, which you can't do for
+  them (and it won't work through `!`). Send them to
+  https://vercel.com/marketplace/neon to click Install and accept; they can stop
+  there. Then run `npm run online -- --yes` again.
 - Not in the `sandbox-is` org? Suggest their own account for now.
 - Pushed changes not going online? On Vercel's free plan, only commits by the
   project owner deploy, and the commit email must be one linked to their GitHub

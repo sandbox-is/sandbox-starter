@@ -35,7 +35,9 @@ one for the live app. Your test data stays on your computer.
 > The setup script makes it for you, so nobody has to see it.
 
 You'll need free [GitHub](https://github.com) and [Vercel](https://vercel.com)
-accounts. Your agent will ask you to sign in to each once.
+accounts. Your agent will ask you to sign in to each once. The first time you
+put an app online, you'll also accept Neon's terms (for the free database) on
+[Vercel's website](https://vercel.com/marketplace/neon). Your agent will tell you when.
 
 ## Work on someone else's app
 
