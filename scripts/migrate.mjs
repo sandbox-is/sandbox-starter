@@ -11,12 +11,14 @@ if (!url) {
   console.log("Database: preview build, skipping migrations so the live database isn't changed.");
 } else {
   const pool = new Pool({ connectionString: url });
+  const client = await pool.connect();
   try {
     await migrate({
-      exec: (text) => pool.query(text),
-      query: async (text) => (await pool.query(text)).rows,
+      exec: (text) => client.query(text),
+      query: async (text) => (await client.query(text)).rows,
     });
   } finally {
+    client.release();
     await pool.end();
   }
 }

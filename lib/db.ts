@@ -17,7 +17,7 @@ export function hasDatabase() {
   return Boolean(process.env.DATABASE_URL) || process.env.NODE_ENV === "development";
 }
 
-const local = globalThis as unknown as { pglite?: Promise<PGlite>; migrated?: string };
+const local = globalThis as unknown as { pglite?: Promise<PGlite>; migrating?: Promise<void>; migrated?: string };
 
 async function localDatabase() {
   local.pglite ??= (async () => {
@@ -27,10 +27,20 @@ async function localDatabase() {
   })();
   const pg = await local.pglite;
   // Re-check on every call so a new migration file applies without a restart.
+  // Requests arriving together wait for the same run rather than starting their own.
   const files = migrationFiles().join();
   if (local.migrated !== files) {
-    await migrate({ exec: (text: string) => pg.exec(text), query: async (text: string) => (await pg.query(text)).rows });
-    local.migrated = files;
+    local.migrating ??= migrate({
+      exec: async (text: string) => void (await pg.exec(text)),
+      query: async (text: string) => (await pg.query(text)).rows,
+    })
+      .then(() => {
+        local.migrated = files;
+      })
+      .finally(() => {
+        local.migrating = undefined;
+      });
+    await local.migrating;
   }
   return pg;
 }

@@ -164,6 +164,9 @@ const rows = await sql<{ name: string }>`select name from members where sub = ${
 new files the next time the app uses it; the live one applies them when the
 change goes online. Never edit a file that's already been applied: add a new one.
 
+To start the local database afresh, stop the app, delete `.data/`, and start
+it again (deleting it while the app runs confuses the database).
+
 To look at the live data, they can open Neon's table viewer with
 `npx vercel integration open neon`.
 
@@ -275,6 +278,7 @@ npm run build
 npm run online              # show what putting it online would do
 npm run online -- --yes     # put it online (or upload new changes)
 npm run setup -- <app ID> --admins a@x.com,b@y.com   # after approval: saves settings in Vercel and redeploys
+                                                     # (--admins replaces the list; --admins none removes it)
 npm run setup -- <app ID> --local-only   # real sign-in on this computer only
 ```
 

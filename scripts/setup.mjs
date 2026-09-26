@@ -13,7 +13,8 @@
 //
 //   --admins a@x.com,b@y.com
 //
-// Also sets who the app's admins are (SANDBOX_ADMINS, by Sandbox email).
+// Also sets who the app's admins are (SANDBOX_ADMINS, by Sandbox email),
+// replacing the list. --admins none removes them all.
 import { randomBytes } from "node:crypto";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import {
@@ -44,7 +45,12 @@ function fillEnvLocal(clientId, admins) {
     else lines.push(`${name}=${value}`);
   };
   set(ID, clientId);
-  if (admins) set(ADMINS, admins);
+  if (admins === "none") {
+    const i = lines.findIndex((l) => l.startsWith(`${ADMINS}=`));
+    if (i >= 0) lines.splice(i, 1);
+  } else if (admins) {
+    set(ADMINS, admins);
+  }
   if (!lines.some((l) => l.startsWith(`${SECRET}=`) && l.length > SECRET.length + 1)) {
     set(SECRET, newSecret());
   }
@@ -56,10 +62,10 @@ const args = process.argv.slice(2);
 const localOnly = args.includes("--local-only");
 const adminsFlag = args.indexOf("--admins");
 const admins = adminsFlag >= 0 ? args[adminsFlag + 1]?.replace(/\s/g, "") : undefined;
-const [clientId] = args.filter((a, i) => !a.startsWith("--") && i !== adminsFlag + 1);
+const [clientId] = args.filter((a, i) => !a.startsWith("--") && !(adminsFlag >= 0 && i === adminsFlag + 1));
 
-if (adminsFlag >= 0 && !admins?.includes("@")) {
-  fail("List admins by their Sandbox email, separated by commas:  --admins a@x.com,b@y.com");
+if (adminsFlag >= 0 && admins !== "none" && !admins?.includes("@")) {
+  fail("List admins by their Sandbox email, separated by commas (or none):  --admins a@x.com,b@y.com");
 }
 
 if (!clientId || /\s/.test(clientId)) {
@@ -80,13 +86,21 @@ requireVercelLogin();
 // similar name can be changed by mistake.
 if (!linkedProjectId()) {
   const origin = run("git", ["config", "--get", "remote.origin.url"]).out.trim();
-  const repo = origin.match(/github\.com[/:]([^/]+)\/([^/]+?)(\.git)?\/?$/)?.[2];
+  const [, owner, repo] = origin.match(/github\.com[/:]([^/]+)\/([^/]+?)(\.git)?\/?$/) ?? [];
   if (!repo) fail("This folder isn't on GitHub yet. Run  npm run online  first.");
-  console.log(`Linking this folder to the Vercel project "${repo}"…`);
-  const linked = vercel(["link", "--yes", "--project", repo]);
-  if (!linked.ok) {
-    fail(`Couldn't find the Vercel project "${repo}". Run  npm run online  first.\n${linked.err.trim()}`);
+  // Only a project connected to this very repo will do: a project that merely
+  // shares the name could be someone else's app.
+  const candidate = vercelProject(repo);
+  if (!candidate) fail(`There's no Vercel project called "${repo}". Run  npm run online  first.`);
+  if (`${candidate.link?.org}/${candidate.link?.repo}` !== `${owner}/${repo}`) {
+    fail(
+      `The Vercel project "${repo}" isn't connected to github.com/${owner}/${repo}, so it may be a different app.\n` +
+        "Run  npm run online  first: it links this folder to the right project.",
+    );
   }
+  console.log(`Linking this folder to the Vercel project "${repo}"…`);
+  const linked = vercel(["link", "--yes", "--project", candidate.id]);
+  if (!linked.ok) fail(`Couldn't link this folder to the Vercel project.\n${linked.err.trim()}`);
 }
 const project = vercelProject(linkedProjectId());
 if (!project) fail("This folder is linked to a Vercel project that no longer exists. Run  npm run online  first.");
@@ -109,7 +123,13 @@ if (existing.has(SECRET)) {
   if (!secretSaved.ok) fail(`Couldn't save ${SECRET} in Vercel.\n${secretSaved.err.trim()}`);
 }
 
-if (admins) {
+if (admins === "none") {
+  if (existing.has(ADMINS)) {
+    console.log(`Removing ${ADMINS}, so nobody is an admin…`);
+    const removed = vercel(["env", "rm", ADMINS, "production", "--yes"]);
+    if (!removed.ok) fail(`Couldn't remove ${ADMINS} in Vercel.\n${removed.err.trim()}`);
+  }
+} else if (admins) {
   console.log(`Saving ${ADMINS}…`);
   const adminsSaved = vercel(["env", "add", ADMINS, "production", "--no-sensitive", "--force", "--yes"], admins);
   if (!adminsSaved.ok) fail(`Couldn't save ${ADMINS} in Vercel.\n${adminsSaved.err.trim()}`);

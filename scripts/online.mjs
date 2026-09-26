@@ -247,7 +247,23 @@ if (!project.targets?.production) {
     if (!found) await new Promise((resolve) => setTimeout(resolve, 5000));
   }
   if (found) {
-    console.log("Your changes will be online in about a minute.");
+    // Wait for the build to finish, so "online" means online.
+    console.log("Vercel is building it (a minute or two)…");
+    let state = found.state;
+    for (let i = 0; i < 36 && !["READY", "ERROR", "CANCELED"].includes(state); i++) {
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+      const list = vercel(["ls", "--json", "--limit", "5"]);
+      state = list.ok
+        ? parseJson(list.out, "the deployments").deployments.find((d) => d.url === found.url)?.state
+        : state;
+    }
+    if (state === "ERROR" || state === "CANCELED") {
+      fail(
+        "Vercel couldn't build this change, so the live app still has the previous version.\n" +
+          `To see why:  npx vercel inspect ${found.url} --logs`,
+      );
+    }
+    if (state !== "READY") console.log("It's taking a while; it should be online in a few minutes.");
   } else {
     console.log(
       "Vercel didn't pick up this change from GitHub, so putting it online directly.\n" +

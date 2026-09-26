@@ -15,8 +15,22 @@ export function migrationFiles() {
   return files;
 }
 
+// Any fixed number: every runner takes the same lock, so two builds (or two
+// requests on a computer) can't apply the same migration at once.
+const LOCK = 7265110;
+
 // db.exec runs a script of statements; db.query runs one and returns its rows.
+// Both must use one connection, since the lock belongs to the connection.
 export async function migrate(db) {
+  await db.exec(`select pg_advisory_lock(${LOCK})`);
+  try {
+    await applyPending(db);
+  } finally {
+    await db.exec(`select pg_advisory_unlock(${LOCK})`);
+  }
+}
+
+async function applyPending(db) {
   await db.exec(
     "create table if not exists _migrations (name text primary key, applied_at timestamptz not null default now())",
   );
