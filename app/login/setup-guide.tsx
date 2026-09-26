@@ -63,6 +63,11 @@ export async function SetupGuide({ missing }: { missing: string[] }) {
         <li>
           <p className="font-medium">3. Add two settings</p>
           <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+            Easiest: ask your AI agent to <em>&ldquo;finish Sandbox setup&rdquo;</em> and give it
+            your app&apos;s ID. It adds both settings and redeploys for you.
+          </p>
+          <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+            Or do it yourself.{" "}
             {local ? (
               <>Put them in <code>.env.local</code>, then restart <code>npm run dev</code>.</>
             ) : (
@@ -88,7 +93,8 @@ export async function SetupGuide({ missing }: { missing: string[] }) {
       </ol>
 
       <p className="text-xs text-neutral-500">
-        Never paste these values into a chat with your AI agent. Tell it the names instead.
+        Your app&apos;s ID isn&apos;t secret, so it&apos;s fine to give it to your agent. Never
+        paste the session secret into a chat.
       </p>
     </div>
   );

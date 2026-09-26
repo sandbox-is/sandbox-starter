@@ -11,15 +11,17 @@ put it online, then ask your AI agent (Claude, Cursor…) to build your idea on 
    You get your own copy of the code, online in about 2 minutes.
 2. **Open your app.** It shows your address and walks you through linking it
    on the [Vibes page](https://members.sandbox.is/vibes).
-3. **Once an admin approves it**, add the two settings in Vercel and redeploy.
-   Your app tells you which ones.
+3. **Once an admin approves it**, ask your AI agent to *"finish Sandbox setup"*
+   and give it your app's ID. It adds the settings and redeploys.
+   (Or do it by hand: your app shows you how.)
 4. **Sign in.** You should see your name and photo.
 
 Now open your copy of the code with your AI agent and **ask it to build your idea.**
 It finds its instructions in `AGENTS.md`. Every change it pushes to GitHub goes
 online by itself.
 
-> Never paste your settings into a chat with your agent. Tell it the names instead.
+> Your app's ID isn't secret. The session secret is: never paste it into a chat.
+> The setup script makes it for you, so nobody has to see it.
 
 ## Working on your computer
 
