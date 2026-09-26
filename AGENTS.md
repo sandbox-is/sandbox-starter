@@ -141,6 +141,19 @@ Sign-in only works at the address the app was linked with (and localhost, if
 they gave a port). Vercel preview links won't work, and a new address means
 linking again on https://members.sandbox.is/vibes.
 
+### When something's wrong
+
+| what they see | what's going on |
+|---|---|
+| "Coming soon" online, or "Almost there" on their computer | Setup isn't finished. The page lists what's missing. |
+| No sign-in button | The app ID is mistyped, or the app isn't approved yet. |
+| Sandbox says the return address isn't allowed | They're on a different address from the one they linked (a Vercel preview link, say). A new address means linking again. |
+| Settings changed but nothing different | Vercel only picks up new settings after a redeploy (`npm run setup` does one). |
+| Signed in, but sent back to the login page | The session secret changed. Signing in again fixes it. |
+| Changes not online | Run `npm run online`: it checks the connection, waits for the build, and says what failed. |
+
+More in the [sandbox-auth troubleshooting guide](https://github.com/cesarsalazar/sandbox-auth/tree/v0.7.1#troubleshooting).
+
 ## Storing data
 
 Use the database in `lib/db.ts` for anything the app needs to remember:
