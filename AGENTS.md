@@ -62,15 +62,20 @@ things with them before going ahead:
 - **The name.** It becomes the address (`<name>.vercel.app`), which can't change
   once it's linked on the Vibes page. Default: this folder's name; change it
   with `--name <name>`.
-- **Where the code lives.** A public repo in the `sandbox-is` GitHub org by
-  default, or their own account with `--owner <their GitHub username>`. Either
-  way it's public, so no secrets or member data in the code.
+- **Where the code lives.** A public repo in the `sandbox-is` GitHub org if
+  they're in it, otherwise their own account (the plan says which). Either way
+  it's public, so no secrets or member data in the code.
 
 Then run it with `--yes` and the same options. It's safe to run again: each
 step checks what's already done. After the first time, it just saves and
 uploads their changes, and Vercel puts them online.
 
 - Not signed in? Ask them to run `! gh auth login` or `! npx vercel login`.
+- The first time, Vercel's GitHub app may not be allowed to see the new repo.
+  The script stops and says how to allow it; then run it again.
+- Until the app is approved and set up, the live address shows "Coming soon"
+  to visitors (the setup steps are behind a toggle). Suggest they don't share
+  the link until then.
 - The first database needs them to accept Neon's terms, which you can't do for
   them, and it won't work through `!`. Ask them to open the Terminal app and run
   `npx vercel integration accept-terms neon` (or, on the website, click Install
@@ -114,6 +119,20 @@ If they're helping with an app someone else owns:
 3. Make changes on a branch and open a pull request (`gh pr create`) for the
    owner to accept. Don't run `npm run online` or a full `npm run setup` on an
    app they don't own.
+
+### Moving an app into sandbox-is later
+
+On GitHub, the repo's Settings → Transfer ownership → `sandbox-is` (they need
+to be in the org). Then run `npm run online` and check it still shows
+"✓ Connect them"; if not, Vercel's GitHub app needs access to `sandbox-is`
+(an org owner allows it). The address doesn't change, so no relinking.
+
+### Removing an app
+
+Four places, all by the person (each asks them to confirm): the Vercel project
+(Settings → Delete), its Neon database (Vercel's Storage tab: deleting the
+project doesn't remove it), the GitHub repo (Settings → Delete), and the link
+on the Vibes page.
 
 Sign-in only works at the address the app was linked with (and localhost, if
 they gave a port). Vercel preview links won't work, and a new address means
@@ -241,6 +260,9 @@ runs), and it switches off by itself once `npm run setup` has filled in
   Always treat them as possibly missing.
 
 ## Commands
+
+`npm install` may warn that an install script (`unrs-resolver`, used by the
+linter) wasn't approved. That's expected and harmless: don't approve it.
 
 ```bash
 npm install

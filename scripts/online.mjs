@@ -47,7 +47,6 @@ const origin = run("git", ["config", "--get", "remote.origin.url"]);
 const existingRepo = origin.ok ? githubRepo(origin.out.trim()) : null;
 const onGitHub = Boolean(existingRepo);
 // Once the code is on GitHub, the repo decides the owner and name.
-const owner = existingRepo?.split("/")[0] ?? option("--owner") ?? ORG;
 const name = existingRepo?.split("/")[1] ?? option("--name") ?? basename(process.cwd());
 
 if (!/^[a-z0-9][a-z0-9-]{0,98}$/.test(name)) {
@@ -64,6 +63,21 @@ if (!gh.ok) fail("You're not signed in to GitHub. Run  gh auth login  and try ag
 const githubUser = gh.out.trim();
 const vercelUser = requireVercelLogin();
 
+const inOrg = (org) =>
+  run("gh", ["api", `user/memberships/orgs/${org}`, "--jq", ".state"]).out.trim() === "active";
+
+// The sandbox-is org by default, or their own account until they're in it.
+let owner = existingRepo?.split("/")[0] ?? option("--owner");
+let ownerNote = "";
+if (!owner) {
+  owner = inOrg(ORG) ? ORG : githubUser;
+  if (owner !== ORG) {
+    ownerNote =
+      `You're not in the "${ORG}" GitHub org yet, so this goes under your own account.\n` +
+      "Ask an org owner to add you if you'd like apps there; this one can be moved later.";
+  }
+}
+
 
 // --- What's already done -----------------------------------------------------
 
@@ -71,9 +85,7 @@ const repo = existingRepo ?? `${owner}/${name}`;
 const repoUrl = `https://github.com/${repo}`;
 // Only a new repo needs permission to create it under the owner; once the code
 // is on GitHub, that's where it stays.
-const inOrg = () =>
-  run("gh", ["api", `user/memberships/orgs/${owner}`, "--jq", ".state"]).out.trim() === "active";
-if (!onGitHub && owner !== githubUser && !inOrg()) {
+if (!onGitHub && owner !== githubUser && !inOrg(owner)) {
   fail(
     `You're not in the "${owner}" GitHub org yet. Ask an org owner to add you,\n` +
       `or keep it under your own account for now:  npm run online -- --owner ${githubUser}`,
@@ -106,6 +118,7 @@ const deployed = Boolean(project?.targets?.production);
 
 if (!go) {
   const step = (done, text) => console.log(`  ${done ? "✓" : "•"} ${text}`);
+  if (ownerNote) console.log(`\n${ownerNote}`);
   console.log("\nHere's what will happen:\n");
   step(onGitHub, onGitHub
     ? `Already on GitHub: ${repoUrl}`
@@ -212,7 +225,27 @@ if (!project.targets?.production) {
   if (!deploy.ok) fail(`The deploy didn't work.\n${deploy.err.trim()}`);
   project = vercelProject(project.id);
 } else {
-  console.log("Your changes will be online in about a minute.");
+  // Vercel should build every push to GitHub, but on the free plan it skips
+  // commits it can't match to the project's owner. Check, and deploy directly
+  // if it hasn't picked this one up.
+  const sha = run("git", ["rev-parse", "HEAD"]).out.trim();
+  console.log("Checking Vercel has picked up your changes…");
+  let found;
+  for (let i = 0; i < 12 && !found; i++) {
+    const list = vercel(["ls", "--json", "--limit", "5"]);
+    found = list.ok && parseJson(list.out, "the deployments").deployments.find((d) => d.meta?.githubCommitSha === sha);
+    if (!found) await new Promise((resolve) => setTimeout(resolve, 5000));
+  }
+  if (found) {
+    console.log("Your changes will be online in about a minute.");
+  } else {
+    console.log(
+      "Vercel didn't pick up this change from GitHub, so putting it online directly.\n" +
+        "(On Vercel's free plan, only the project owner's changes go online by themselves.)",
+    );
+    const deploy = vercel(["deploy", "--prod", "--yes"]);
+    if (!deploy.ok) fail(`The deploy didn't work.\n${deploy.err.trim()}`);
+  }
 }
 
 const address = productionAddress(project);

@@ -15,7 +15,7 @@ export async function SetupGuide({ missing }: { missing: string[] }) {
   const address = `https://${production ?? host}`;
   const port = host.split(":")[1] ?? "3000";
 
-  return (
+  const steps = (
     <div className="space-y-6 text-left">
       <div>
         <h1 className="text-2xl font-semibold">Almost there</h1>
@@ -110,6 +110,27 @@ export async function SetupGuide({ missing }: { missing: string[] }) {
         Your app&apos;s ID isn&apos;t secret, so it&apos;s fine to give it to your agent. Never
         paste the session secret into a chat.
       </p>
+    </div>
+  );
+
+  if (local) return steps;
+
+  // Online, anyone with the link may land here before the app is approved, so
+  // they see "coming soon"; the steps are one click away for whoever built it.
+  return (
+    <div className="space-y-6">
+      <div className="text-center">
+        <h1 className="text-2xl font-semibold">Coming soon</h1>
+        <p className="mt-1 text-neutral-500">
+          This Sandbox app is still being set up. Check back soon.
+        </p>
+      </div>
+      <details className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
+        <summary className="cursor-pointer text-sm text-neutral-500">
+          Setting this app up? Show the steps
+        </summary>
+        <div className="mt-4">{steps}</div>
+      </details>
     </div>
   );
 }

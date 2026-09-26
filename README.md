@@ -17,8 +17,9 @@ Then:
 1. **Build your idea** by chatting with your agent. On your computer you're
    signed in as "Test Member", so you can try every page straight away.
 2. **Put it online** when it's ready to show: ask your agent to *"put it online"*.
-   It creates a public GitHub repo in the `sandbox-is` org (or your own account)
-   and a Vercel project, and gives you the address.
+   It creates a public GitHub repo in the `sandbox-is` org (or your own account,
+   if you're not in the org yet) and a Vercel project, and gives you the address.
+   The first time, you may need to let Vercel see your GitHub repos; it'll say how.
 3. **Link it** on the [Vibes page](https://members.sandbox.is/vibes): paste the
    address, add local port `3000`, say what it does, and click *Ask to link*.
 4. **Once an admin approves it**, ask your agent to *"finish Sandbox setup"* and
@@ -26,6 +27,7 @@ Then:
 5. **Sign in for real** with Sandbox. You should see your name and photo.
 
 After that, every change your agent uploads to GitHub goes online by itself.
+Until then, visitors to your address see "Coming soon", so hold off sharing it.
 
 **Saving data** (RSVPs, lists, anything the app remembers) just works: there's
 a database on your computer from the start, and putting it online adds a free
