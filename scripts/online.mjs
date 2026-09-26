@@ -172,10 +172,9 @@ if (!hasDatabase()) {
   if (!db.ok) {
     fail(
       "Couldn't add the database. The first time, Neon asks you to accept its terms,\n" +
-        "and that has to be done by you, not your agent:\n" +
-        "  open https://vercel.com/marketplace/neon, click Install and accept the terms.\n" +
-        "You can stop there: this step creates the database itself when you run it again.\n" +
-        "(Or, in a normal Terminal window: npx vercel integration accept-terms neon)\n\n" +
+        "and that has to be done by you, not your agent. Open the Terminal app and run:\n" +
+        "  npx vercel integration accept-terms neon\n" +
+        "(Or open https://vercel.com/marketplace/neon, click Install, accept, and stop there.)\n\n" +
         db.err.trim(),
     );
   }
