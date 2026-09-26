@@ -3,7 +3,7 @@
 A tiny app where Sandbox members sign in with their Sandbox account. Copy it,
 put it online, then ask your AI agent (Claude, Cursor…) to build your idea on top.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fsandbox-is%2Fsandbox-starter&project-name=my-sandbox-app&repository-name=my-sandbox-app)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fsimonwisdom%2Fsandbox-starter&project-name=my-sandbox-app&repository-name=my-sandbox-app)
 
 ## Get it working
 
