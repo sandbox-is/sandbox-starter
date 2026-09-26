@@ -9,7 +9,10 @@ const PUBLIC = ["/login", "/api/auth"];
 
 export default async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  if (PUBLIC.some((p) => pathname.startsWith(p))) return NextResponse.next();
+  // A path or anything under it: "/login" and "/login/x", but not "/login-admin".
+  if (PUBLIC.some((p) => pathname === p || pathname.startsWith(`${p}/`))) {
+    return NextResponse.next();
+  }
   if (testSignIn()) return NextResponse.next();
 
   // The cookie first: without one there's nothing to check. Before the app
