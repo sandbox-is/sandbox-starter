@@ -41,8 +41,9 @@ export async function SetupGuide({ missing }: { missing: string[] }) {
           <p className="font-medium">1. Link your app</p>
           {local ? (
             <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-              On the Vibes page, give your app&apos;s Vercel address and put{" "}
-              <code>{port}</code> as the local port.
+              When it&apos;s ready to show, ask your AI agent to{" "}
+              <em>&ldquo;put it online&rdquo;</em>. It gives you the address to paste into{" "}
+              <em>Where it lives</em> on the Vibes page. Put <code>{port}</code> as the local port.
             </p>
           ) : (
             <>

@@ -4,9 +4,15 @@ A small Next.js app where Sandbox members sign in with their Sandbox account.
 It's a starting point: the person you're helping will ask you to build their
 idea on top of it. They may not be an engineer, so explain in plain words.
 
-The usual order: they deploy it, build their idea on their own computer with
-test sign-in, link it on the Vibes page once it's ready to show, and after
-approval ask you to finish setup (see below).
+The usual order:
+
+1. **Build** on their computer with test sign-in (`npm run dev`).
+2. **Put it online** when it's ready to show (`npm run online`, below).
+3. They **link it** on https://members.sandbox.is/vibes and wait for an admin.
+4. After approval, **finish setup** (`npm run setup`, below).
+
+They may also have started from the Deploy button, in which case it's already
+on GitHub and Vercel; the same commands work.
 
 ## Rules
 
@@ -33,6 +39,34 @@ Until both are set, the app still builds and runs, and the login page shows a
 setup guide instead of the sign-in button. If the person is stuck, point them
 to that page: it tells them what's missing and what to do.
 
+### Putting it online
+
+When they ask to put it online (or save it to GitHub), first run:
+
+```bash
+npm run online
+```
+
+It changes nothing: it prints what it would do. Show them, and check two
+things with them before going ahead:
+
+- **The name.** It becomes the address (`<name>.vercel.app`), which can't change
+  once it's linked on the Vibes page. Default: this folder's name; change it
+  with `--name <name>`.
+- **Where the code lives.** A public repo in the `sandbox-is` GitHub org by
+  default, or their own account with `--owner <their GitHub username>`. Either
+  way it's public, so no secrets or member data in the code.
+
+Then run it with `--yes` and the same options. It's safe to run again: each
+step checks what's already done. After the first time, it just saves and
+uploads their changes, and Vercel puts them online.
+
+- Not signed in? Ask them to run `! gh auth login` or `! npx vercel login`.
+- Not in the `sandbox-is` org? Suggest their own account for now.
+- Pushed changes not going online? On Vercel's free plan, only commits by the
+  project owner deploy, and the commit email must be one linked to their GitHub
+  account (`git config user.email`).
+
 ### Finishing setup
 
 When the person says their app is approved (or asks you to finish setup), ask
@@ -49,8 +83,20 @@ Never generate, print or ask for the secret yourself; the script handles it.
 
 - If it says they're not signed in to Vercel, ask them to run `npx vercel login`
   themselves (in Claude Code: type `! npx vercel login`). It opens a browser.
-- If it can't find the project, ask for the project name shown in Vercel and
-  run `npm run setup -- <app ID> --project <name>`.
+- If it says the app isn't on GitHub or Vercel yet, run `npm run online` first.
+
+### Working on someone else's app
+
+If they're helping with an app someone else owns:
+
+1. `git clone` it, `npm install`, `npm run dev`. Test sign-in works straight away.
+2. For real sign-in on their computer, get the app ID (the owner has it, and
+   it's in the page source of the app's login page) and run
+   `npm run setup -- <app ID> --local-only`. That only fills in `.env.local`
+   with its own secret; it never touches Vercel or the live app.
+3. Make changes on a branch and open a pull request (`gh pr create`) for the
+   owner to accept. Don't run `npm run online` or a full `npm run setup` on an
+   app they don't own.
 
 Sign-in only works at the address the app was linked with (and localhost, if
 they gave a port). Vercel preview links won't work, and a new address means
@@ -68,7 +114,9 @@ about sign-in.
 | `app/login/setup-guide.tsx` | what the login page shows until both settings are set |
 | `lib/setup.ts` | which settings are missing, and whether test sign-in is on |
 | `lib/session.ts` | `getMember()`: the signed-in member (real, or the test member) |
+| `scripts/online.mjs` | `npm run online`: GitHub repo, Vercel project, first deploy |
 | `scripts/setup.mjs` | `npm run setup`: saves both settings in Vercel and redeploys |
+| `scripts/lib.mjs` | helpers shared by the two scripts |
 | `app/api/auth/callback/route.ts` | where Sandbox sends people back; sets the session cookie |
 | `app/api/auth/logout/route.ts` | signs out of this app |
 | `proxy.ts` | sends signed-out people to `/login`; edit `PUBLIC` to open pages to everyone |
@@ -111,7 +159,10 @@ npm install
 npm run dev     # http://localhost:3000
 npm run lint
 npm run build
+npm run online              # show what putting it online would do
+npm run online -- --yes     # put it online (or upload new changes)
 npm run setup -- <app ID>   # after approval: saves settings in Vercel and redeploys
+npm run setup -- <app ID> --local-only   # real sign-in on this computer only
 ```
 
 Signing in on localhost only works if the app was linked with local port 3000
