@@ -22,6 +22,9 @@ import {
 } from "./lib.mjs";
 
 const ORG = "sandbox-is";
+const JOIN_ORG =
+  `Most Sandbox apps live in the ${ORG} GitHub org, where other members can find\n` +
+  "them and help. To join, ask a Sandbox admin to add your GitHub username.";
 
 // Paths where integrations put coding-assistant files.
 function helpFiles() {
@@ -63,18 +66,25 @@ if (!gh.ok) fail("You're not signed in to GitHub. Run  gh auth login  and try ag
 const githubUser = gh.out.trim();
 const vercelUser = requireVercelLogin();
 
-const inOrg = (org) =>
-  run("gh", ["api", `user/memberships/orgs/${org}`, "--jq", ".state"]).out.trim() === "active";
+// "active", "pending" (invited, not yet accepted) or "" (not a member).
+const orgState = (org) => run("gh", ["api", `user/memberships/orgs/${org}`, "--jq", ".state"]).out.trim();
+const inOrg = (org) => orgState(org) === "active";
 
 // The sandbox-is org by default, or their own account until they're in it.
 let owner = existingRepo?.split("/")[0] ?? option("--owner");
 let ownerNote = "";
 if (!owner) {
-  owner = inOrg(ORG) ? ORG : githubUser;
-  if (owner !== ORG) {
+  const state = orgState(ORG);
+  owner = state === "active" ? ORG : githubUser;
+  if (state === "pending") {
     ownerNote =
-      `You're not in the "${ORG}" GitHub org yet, so this goes under your own account.\n` +
-      "Ask an org owner to add you if you'd like apps there; this one can be moved later.";
+      `You've been invited to the ${ORG} GitHub org but haven't accepted yet.\n` +
+      `Accept at https://github.com/orgs/${ORG}/invitation and run this again to put\n` +
+      `the app there. Or go ahead, and it goes under your own account (${githubUser}).`;
+  } else if (state !== "active") {
+    ownerNote =
+      `${JOIN_ORG}\nYou're not in it yet, so this would go under your own account\n` +
+      `(${githubUser}). You can wait until you've joined, or go ahead and move it later.`;
   }
 }
 
@@ -251,6 +261,14 @@ if (!project.targets?.production) {
 const address = productionAddress(project);
 console.log(`\n✓ Your app is online at ${address ?? `https://${name}.vercel.app`}`);
 console.log(`  Code: ${repoUrl}`);
+if (owner !== ORG) {
+  const state = orgState(ORG);
+  console.log(
+    state === "active"
+      ? `\nYou're in the ${ORG} GitHub org now. Consider moving this app there:\nthe repo's Settings → Transfer ownership → ${ORG}.`
+      : `\n${JOIN_ORG}\nOnce you're in, you can move this app there (the repo's Settings → Transfer ownership).`,
+  );
+}
 const envLocal = existsSync(".env.local") ? readFileSync(".env.local", "utf8") : "";
 if (!/^SANDBOX_AUTH_CLIENT_ID=\S/m.test(envLocal)) {
   console.log("\nNext: link that address on https://members.sandbox.is/vibes (with local port 3000),");

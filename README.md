@@ -4,6 +4,14 @@ A tiny app where Sandbox members sign in with their Sandbox account. Your AI
 agent copies it, you build your idea on top, and it goes online, ready for
 other members to sign in and to work on with you.
 
+## Before you start: join the Sandbox GitHub
+
+Most Sandbox apps live together in the [sandbox-is](https://github.com/sandbox-is)
+GitHub org, where other members can find them, learn from them and help. Ask a
+Sandbox admin to add your GitHub username (make a free
+[GitHub account](https://github.com/signup) first if you need one). You can
+start building while you wait: your app only goes to GitHub when you put it online.
+
 ## Start with your agent
 
 Paste this into Claude Code or Cursor (change the name and the idea):

@@ -62,9 +62,12 @@ things with them before going ahead:
 - **The name.** It becomes the address (`<name>.vercel.app`), which can't change
   once it's linked on the Vibes page. Default: this folder's name; change it
   with `--name <name>`.
-- **Where the code lives.** A public repo in the `sandbox-is` GitHub org if
-  they're in it, otherwise their own account (the plan says which). Either way
-  it's public, so no secrets or member data in the code.
+- **Where the code lives.** Most Sandbox apps live in the `sandbox-is` GitHub
+  org, where members can find them and help, so encourage that. It's used
+  automatically if they're in it. If the plan says they're not (or haven't
+  accepted an invite), tell them, and ask whether to wait until they've joined
+  or go ahead under their own account and move it later. Either way the repo
+  is public, so no secrets or member data in the code.
 
 Then run it with `--yes` and the same options. It's safe to run again: each
 step checks what's already done. After the first time, it just saves and
