@@ -16,6 +16,9 @@ on GitHub and Vercel; the same commands work.
 
 ## Rules
 
+If any other docs or skills in this project disagree with this file, this file
+wins.
+
 - **Never ask for, print or paste secret values.** Not in the chat, not in code,
   not in commits. Refer to settings by name only. If a value is needed, tell the
   person where to put it (`.env.local` on their computer, or Vercel → Settings →
@@ -74,9 +77,11 @@ uploads their changes, and Vercel puts them online.
   at https://vercel.com/marketplace/neon, accept, and stop there). It's once per
   Vercel account. Then run `npm run online -- --yes` again.
 - Not in the `sandbox-is` org? Suggest their own account for now.
-- Pushed changes not going online? On Vercel's free plan, only commits by the
-  project owner deploy, and the commit email must be one linked to their GitHub
-  account (`git config user.email`).
+- Pushed changes not going online? Run `npm run online` and check it shows
+  "✓ Connect them". If not, Vercel's GitHub app can't see the repo: `--yes`
+  will say how to fix it. If it is connected, remember that on Vercel's free
+  plan only commits by the project owner deploy, from an email linked to their
+  GitHub account (`git config user.email`).
 
 ### Finishing setup
 

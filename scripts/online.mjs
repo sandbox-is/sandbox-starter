@@ -8,7 +8,7 @@
 //
 // Each step checks whether it's already done, so running it again is safe:
 // it picks up where it left off, and after that it just uploads new changes.
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, rmSync } from "node:fs";
 import { basename } from "node:path";
 import {
   fail,
@@ -22,6 +22,16 @@ import {
 } from "./lib.mjs";
 
 const ORG = "sandbox-is";
+
+// Paths where integrations put coding-assistant files.
+function helpFiles() {
+  const found = new Set();
+  for (const path of [".agents", "skills-lock.json"]) if (existsSync(path)) found.add(path);
+  if (existsSync(".claude/skills")) {
+    for (const entry of readdirSync(".claude/skills")) found.add(`.claude/skills/${entry}`);
+  }
+  return found;
+}
 
 const args = process.argv.slice(2);
 const option = (name) => {
@@ -153,11 +163,17 @@ if (!project) {
 
 if (!project.link) {
   console.log("Connecting Vercel to GitHub…");
-  const connect = vercel(["git", "connect", repoUrl]);
-  if (!connect.ok) {
+  // No address: given one, the CLI asks "Do you still want to connect?", which
+  // nobody answers here. Without it, it uses this folder's GitHub remote.
+  // It can also report success when it failed, so check the project instead.
+  const connect = vercel(["git", "connect"]);
+  project = vercelProject(project.id);
+  if (!project.link) {
     fail(
-      `Vercel can't reach ${repoUrl}. Vercel's GitHub app needs access to "${owner}":\n` +
-        `open https://github.com/apps/vercel/installations/new and allow it.\n${connect.err.trim()}`,
+      `Vercel couldn't connect to ${repoUrl}. Usually its GitHub app isn't allowed to see this repo.\n` +
+        `Open https://github.com/apps/vercel/installations/new, click "${owner}", and under\n` +
+        `Repository access choose All repositories (or add ${name}). Save, then run this again.\n\n` +
+        `${connect.out.trim()}\n${connect.err.trim()}`.trim(),
     );
   }
 }
@@ -168,7 +184,15 @@ if (!project.link) {
 
 if (!hasDatabase()) {
   console.log("Adding a free Neon database for the live app…");
+  const before = helpFiles();
   const db = vercel(["integration", "add", "neon", "--name", `${name}-db`, "--environment", "production", "--no-env-pull"]);
+  // Adding Neon also drops general coding-assistant docs into the project
+  // (.agents/, .claude/skills/, skills-lock.json). Some of their advice, like
+  // copying the live database address locally or using Neon's own sign-in,
+  // contradicts AGENTS.md, so anything new there is removed again.
+  for (const path of helpFiles()) {
+    if (!before.has(path)) rmSync(path, { recursive: true, force: true });
+  }
   if (!db.ok) {
     fail(
       "Couldn't add the database. The first time, Neon asks you to accept its terms,\n" +
