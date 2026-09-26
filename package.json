@@ -9,9 +9,11 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "jose": "^5",
     "next": "16.3.6",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "sandbox-auth": "git+https://github.com/cesarsalazar/sandbox-auth.git#v0.7.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
