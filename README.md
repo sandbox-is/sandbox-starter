@@ -1,7 +1,7 @@
-# Sandbox app starter
-
-Build a members-only app for Sandbox by chatting with your AI agent.
-Sign in with Sandbox, a database and hosting come ready to go.
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/banner-dark.svg">
+  <img src="docs/banner-light.svg" alt="Sandbox app starter: build a members-only app by chatting with your AI agent. Sign in with Sandbox, database and hosting included.">
+</picture>
 
 **You'll need:** Claude Code or Cursor, and free [GitHub](https://github.com/signup)
 and [Vercel](https://vercel.com/signup) accounts. Ideally, also ask a Sandbox admin to
@@ -13,15 +13,21 @@ apps live together.
 Paste this into your agent, changing the name and the idea:
 
 ```
-Make me a new Sandbox app called hub-dinners by running
-npx create-next-app@latest hub-dinners --example https://github.com/simonwisdom/sandbox-starter --use-npm --yes
-then read its AGENTS.md and run it. I want to build: an RSVP page for our hub's dinners.
+Make me a new Sandbox app called hub-dinners. Create it with:
+
+  npx create-next-app@latest hub-dinners --use-npm --yes \
+    --example https://github.com/simonwisdom/sandbox-starter
+
+Then read its AGENTS.md and run it.
+I want to build: an RSVP page for our hub's dinners.
 ```
 
 ## 2. Build
 
 Keep chatting. While you build, you're signed in as "Test Member" and your data
 stays on your computer.
+
+<img src="docs/home.png" width="480" alt="The starter app on your computer: signed in as Test Member, with a yellow banner saying this is test sign-in.">
 
 ## 3. Go live
 
@@ -30,6 +36,8 @@ stays on your computer.
 | Say *"put it online"* | Your agent puts it on GitHub and Vercel with a free database, and gives you its address |
 | Link that address on the [Vibes page](https://members.sandbox.is/vibes) (local port `3000`) | An admin reviews it. Until then, visitors see "Coming soon" |
 | Once approved, say *"finish Sandbox setup"* and give your app's ID | Real Sandbox sign-in turns on |
+
+<img src="docs/coming-soon.png" width="480" alt="What visitors see before approval: a Coming soon page.">
 
 After that, every change goes online by itself. Stuck? Ask your agent: the fixes
 are in `AGENTS.md`.
