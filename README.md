@@ -16,7 +16,7 @@ Paste this into your agent, changing the name and the idea:
 Make me a new Sandbox app called hub-dinners. Create it with:
 
   npx create-next-app@latest hub-dinners --use-npm --yes \
-    --example https://github.com/simonwisdom/sandbox-starter
+    --example https://github.com/sandbox-is/sandbox-starter
 
 Then read its AGENTS.md and run it.
 I want to build: an RSVP page for our hub's dinners.
@@ -56,7 +56,7 @@ as a pull request.
 
 ### Prefer clicking?
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fsimonwisdom%2Fsandbox-starter&project-name=my-sandbox-app&repository-name=my-sandbox-app)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fsandbox-is%2Fsandbox-starter&project-name=my-sandbox-app&repository-name=my-sandbox-app)
 
 This copies the template and puts it online in one go. Then open your copy with
 your agent and carry on from step 2.
