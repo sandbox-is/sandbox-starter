@@ -27,6 +27,10 @@ Then:
 
 After that, every change your agent uploads to GitHub goes online by itself.
 
+**Saving data** (RSVPs, lists, anything the app remembers) just works: there's
+a database on your computer from the start, and putting it online adds a free
+one for the live app. Your test data stays on your computer.
+
 > Your app's ID isn't secret. The session secret is: never paste it into a chat.
 > The setup script makes it for you, so nobody has to see it.
 
@@ -67,4 +71,6 @@ More in the [sandbox-auth troubleshooting guide](https://github.com/cesarsalazar
 - **Next.js** (App Router) with **Tailwind**, ready for Vercel
 - **[sandbox-auth](https://github.com/cesarsalazar/sandbox-auth)** for Sign in with Sandbox
 - Sign-in page, a signed-in home page and sign-out; every other page needs sign-in
+- A Postgres database (local on your computer, [Neon](https://neon.tech) online), a
+  `members` table filled in as people sign in, and admins
 - `AGENTS.md`: instructions and rules for your AI agent

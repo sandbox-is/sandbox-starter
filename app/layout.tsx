@@ -28,7 +28,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         {testSignIn() && (
           <div className="bg-amber-100 px-4 py-2 text-center text-sm text-amber-900">
             Test sign-in: you&apos;re &ldquo;Test Member&rdquo;. Real Sandbox sign-in starts
-            once your app is approved and set up.
+            once your app is approved and set up. Data here is saved on your computer only.
           </div>
         )}
         {children}

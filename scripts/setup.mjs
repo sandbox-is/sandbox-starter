@@ -10,6 +10,10 @@
 //
 // Only fills in .env.local, for real sign-in on your own computer. For
 // collaborators: it never touches Vercel or the live app's secret.
+//
+//   --admins a@x.com,b@y.com
+//
+// Also sets who the app's admins are (SANDBOX_ADMINS, by Sandbox email).
 import { randomBytes } from "node:crypto";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import {
@@ -24,6 +28,7 @@ import {
 } from "./lib.mjs";
 
 const ID = "SANDBOX_AUTH_CLIENT_ID";
+const ADMINS = "SANDBOX_ADMINS";
 const SECRET = "SANDBOX_AUTH_CLIENT_SESSION_SECRET";
 
 const newSecret = () => randomBytes(32).toString("base64url");
@@ -31,7 +36,7 @@ const newSecret = () => randomBytes(32).toString("base64url");
 // Sets NAME=value in .env.local, keeping every other line as it was. Local
 // development gets its own secret: sessions on localhost and on the live
 // site are separate anyway.
-function fillEnvLocal(clientId) {
+function fillEnvLocal(clientId, admins) {
   const lines = existsSync(".env.local") ? readFileSync(".env.local", "utf8").split("\n") : [];
   const set = (name, value) => {
     const i = lines.findIndex((l) => l.startsWith(`${name}=`));
@@ -39,6 +44,7 @@ function fillEnvLocal(clientId) {
     else lines.push(`${name}=${value}`);
   };
   set(ID, clientId);
+  if (admins) set(ADMINS, admins);
   if (!lines.some((l) => l.startsWith(`${SECRET}=`) && l.length > SECRET.length + 1)) {
     set(SECRET, newSecret());
   }
@@ -48,14 +54,20 @@ function fillEnvLocal(clientId) {
 
 const args = process.argv.slice(2);
 const localOnly = args.includes("--local-only");
-const [clientId] = args.filter((a) => !a.startsWith("--"));
+const adminsFlag = args.indexOf("--admins");
+const admins = adminsFlag >= 0 ? args[adminsFlag + 1]?.replace(/\s/g, "") : undefined;
+const [clientId] = args.filter((a, i) => !a.startsWith("--") && i !== adminsFlag + 1);
+
+if (adminsFlag >= 0 && !admins?.includes("@")) {
+  fail("List admins by their Sandbox email, separated by commas:  --admins a@x.com,b@y.com");
+}
 
 if (!clientId || /\s/.test(clientId)) {
   fail("Give your app ID from https://members.sandbox.is/vibes:  npm run setup -- <app ID>");
 }
 
 if (localOnly) {
-  fillEnvLocal(clientId);
+  fillEnvLocal(clientId, admins);
   console.log("\n✓ Done. Restart  npm run dev  and sign in with Sandbox.");
   console.log("  This works if the app was linked with a local port that matches (usually 3000).\n");
   process.exit(0);
@@ -97,7 +109,17 @@ if (existing.has(SECRET)) {
   if (!secretSaved.ok) fail(`Couldn't save ${SECRET} in Vercel.\n${secretSaved.err.trim()}`);
 }
 
-fillEnvLocal(clientId);
+if (admins) {
+  console.log(`Saving ${ADMINS}…`);
+  const adminsSaved = vercel(["env", "add", ADMINS, "production", "--no-sensitive", "--force", "--yes"], admins);
+  if (!adminsSaved.ok) fail(`Couldn't save ${ADMINS} in Vercel.\n${adminsSaved.err.trim()}`);
+}
+
+fillEnvLocal(clientId, admins);
+
+if (!existing.has("DATABASE_URL")) {
+  console.log("Note: the live app has no database yet. Run  npm run online  to add one.");
+}
 
 console.log("Redeploying so the new settings take effect (about a minute)…");
 const list = vercel(["ls", "--environment", "production", "--status", "READY", "--json", "--limit", "1"]);

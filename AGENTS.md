@@ -27,6 +27,10 @@ on GitHub and Vercel; the same commands work.
   to that exact path. Don't move or rename it.
 - **Don't commit `.env.local`.** It's git-ignored; keep it that way.
   `.env.example` lists the names with no values.
+- **The repo is public.** Anyone can read the code, so no secrets, member data
+  or private notes in it. Data belongs in the database.
+- **Never change or delete an existing migration**, and never drop a table or
+  column without asking the person first. Live data can't be recovered from code.
 
 ## Settings
 
@@ -34,6 +38,8 @@ on GitHub and Vercel; the same commands work.
 |---|---|
 | `SANDBOX_AUTH_CLIENT_ID` | the app's ID, shown on the Vibes page once an admin approves the app |
 | `SANDBOX_AUTH_CLIENT_SESSION_SECRET` | a long random string that signs the session cookie |
+| `SANDBOX_ADMINS` | optional: admins' Sandbox emails, comma-separated |
+| `DATABASE_URL` | the live database, added by `npm run online`. Never put it in `.env.local` |
 
 Until both are set, the app still builds and runs, and the login page shows a
 setup guide instead of the sign-in button. If the person is stuck, point them
@@ -70,7 +76,8 @@ uploads their changes, and Vercel puts them online.
 ### Finishing setup
 
 When the person says their app is approved (or asks you to finish setup), ask
-for their app ID from the Vibes page. It isn't secret: it appears in every
+for their app ID from the Vibes page, and who should be admins (their Sandbox
+emails; add them with `--admins`). It isn't secret: it appears in every
 sign-in page. Then run:
 
 ```bash
@@ -102,6 +109,72 @@ Sign-in only works at the address the app was linked with (and localhost, if
 they gave a port). Vercel preview links won't work, and a new address means
 linking again on https://members.sandbox.is/vibes.
 
+## Storing data
+
+Use the database in `lib/db.ts` for anything the app needs to remember:
+
+```ts
+import { sql } from "@/lib/db";
+
+await sql`insert into rsvps (dinner_id, member_sub) values (${dinnerId}, ${member.sub})`;
+const rows = await sql<{ name: string }>`select name from members where sub = ${sub}`;
+```
+
+- Always put values in `${}`; they're sent safely. Never build SQL by joining strings.
+- On their computer it's a local Postgres in `.data/` (nothing to set up, and
+  each computer has its own). Online it's a Neon Postgres, added by
+  `npm run online`. Live data is never copied to their computer, or back.
+- Vercel doesn't keep files between visits, so never save data to files.
+
+**Changing what's stored** (new tables, new columns) is always a new file in
+`db/migrations/`, numbered after the last one: `002_add_dinners.sql`,
+`003_add_rsvp_notes.sql`. Write plain Postgres SQL. The local database applies
+new files the next time the app uses it; the live one applies them when the
+change goes online. Never edit a file that's already been applied: add a new one.
+
+To look at the live data, they can open Neon's table viewer with
+`npx vercel integration open neon`.
+
+### Members
+
+`db/migrations/001_members.sql` has a `members` table (`sub`, `name`, `email`,
+`picture`, `first_seen_at`, `last_seen_at`). `getMember()` fills it in whenever
+someone signs in, so pages can show other members' names and photos: store a
+member's `sub` in your own tables and join to `members` for their details.
+
+The app only knows members who've signed in to it. To find members who haven't,
+see "Member data" under the Vibes prompts below (needs separate approval).
+
+### Admins
+
+```ts
+import { isAdmin } from "@/lib/admin";
+
+if (!isAdmin(member)) redirect("/");
+```
+
+Admins are listed by their Sandbox email in `SANDBOX_ADMINS` (comma-separated).
+With test sign-in and nobody listed, the test member is an admin, so admin pages
+can be built; to try the app as a non-admin, put someone else's email in
+`SANDBOX_ADMINS` in `.env.local`. Ask who the admins are when finishing setup,
+and pass them with `--admins`. Check `isAdmin` on the server, in every page,
+route handler and server action that needs it, not just by hiding buttons.
+
+## Common next steps
+
+- **Photos and files:** use Vercel Blob (see `npx vercel storage --help`, or
+  the Storage tab of the Vercel project). Store each file's URL in the database.
+- **Emails:** use an email service from the Vercel Marketplace, such as Resend
+  (`npx vercel integration add resend`). Send from server code only.
+- **Reminders and scheduled jobs:** Vercel Cron Jobs, set in `vercel.json`,
+  calling a route handler. Protect that route with the `CRON_SECRET` Vercel sets.
+- **Looking up members:** see "Member data" below.
+- **A custom address** (like `dinners.example.com`): Sandbox sign-in is tied to
+  the address the app was linked with, so a new address means linking again on
+  the Vibes page. Warn the person before they set one up.
+
+Check each service's current docs before using it: these change often.
+
 ## How sign-in works
 
 It uses [sandbox-auth](https://github.com/cesarsalazar/sandbox-auth/tree/v0.7.1#readme)
@@ -113,7 +186,12 @@ about sign-in.
 | `app/login/page.tsx` | the Sign in with Sandbox button, and sign-in error messages |
 | `app/login/setup-guide.tsx` | what the login page shows until both settings are set |
 | `lib/setup.ts` | which settings are missing, and whether test sign-in is on |
-| `lib/session.ts` | `getMember()`: the signed-in member (real, or the test member) |
+| `lib/session.ts` | `getMember()`: the signed-in member (real, or the test member), saved to `members` |
+| `lib/db.ts` | `sql`: the database (local on their computer, Neon online) |
+| `lib/admin.ts` | `isAdmin(member)`: from `SANDBOX_ADMINS` |
+| `db/migrations/` | every change to what's stored, in order |
+| `db/migrate.mjs`, `scripts/migrate.mjs` | apply migrations (locally when used; online before each build) |
+| `components/avatar.tsx` | a member's photo, or their initial |
 | `scripts/online.mjs` | `npm run online`: GitHub repo, Vercel project, first deploy |
 | `scripts/setup.mjs` | `npm run setup`: saves both settings in Vercel and redeploys |
 | `scripts/lib.mjs` | helpers shared by the two scripts |
@@ -161,7 +239,7 @@ npm run lint
 npm run build
 npm run online              # show what putting it online would do
 npm run online -- --yes     # put it online (or upload new changes)
-npm run setup -- <app ID>   # after approval: saves settings in Vercel and redeploys
+npm run setup -- <app ID> --admins a@x.com,b@y.com   # after approval: saves settings in Vercel and redeploys
 npm run setup -- <app ID> --local-only   # real sign-in on this computer only
 ```
 

@@ -13,6 +13,7 @@ import { basename } from "node:path";
 import {
   fail,
   linkedProjectId,
+  parseJson,
   productionAddress,
   requireVercelLogin,
   run,
@@ -86,6 +87,11 @@ if (sameName && !sameRepo) {
 }
 if (sameRepo) project = sameName;
 const connected = Boolean(project?.link);
+const hasDatabase = () => {
+  const envs = vercel(["env", "ls", "production", "--json"]);
+  return envs.ok && parseJson(envs.out, "the settings").envs.some((e) => e.key === "DATABASE_URL");
+};
+const databaseAdded = linkedId ? hasDatabase() : false;
 const deployed = Boolean(project?.targets?.production);
 
 if (!go) {
@@ -98,6 +104,7 @@ if (!go) {
     ? `Already on Vercel: project "${project.name}"`
     : `Create a Vercel project "${name}" in ${vercelUser}'s Vercel account`);
   step(connected, "Connect them, so every change uploaded to GitHub goes online by itself");
+  step(databaseAdded, "Add a free Neon database for the live app (your computer keeps its own, separate one)");
   step(deployed, deployed ? `Already online: ${productionAddress(project)}` : "Put it online for the first time");
   if (!deployed) {
     console.log(`\nYour address will probably be https://${name}.vercel.app (Vercel may add a few letters if that's taken).`);
@@ -155,7 +162,23 @@ if (!project.link) {
   }
 }
 
-// --- 4. First deploy (later changes go online when they're pushed) -----------
+// --- 4. Database for the live app -------------------------------------------
+// Production only, and not copied to .env.local: the live data stays online,
+// and every computer keeps its own local database.
+
+if (!hasDatabase()) {
+  console.log("Adding a free Neon database for the live app…");
+  const db = vercel(["integration", "add", "neon", "--name", `${name}-db`, "--environment", "production", "--no-env-pull"]);
+  if (!db.ok) {
+    fail(
+      "Couldn't add the database. The first time, Neon asks you to accept its terms.\n" +
+        "Run this yourself:  npx vercel integration accept-terms neon\n" +
+        db.err.trim(),
+    );
+  }
+}
+
+// --- 5. First deploy (later changes go online when they're pushed) -----------
 
 if (!project.targets?.production) {
   console.log("Putting it online for the first time (about 2 minutes)…");
