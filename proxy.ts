@@ -3,6 +3,7 @@
 // Pattern from the sandbox-auth README ("Gate pages").
 import { NextRequest, NextResponse } from "next/server";
 import { resolveConfig, readSession, revoked, sessionToken } from "sandbox-auth/core";
+import { missingSettings } from "@/lib/setup";
 
 const PUBLIC = ["/login", "/api/auth"];
 
@@ -11,11 +12,11 @@ export default async function proxy(request: NextRequest) {
   if (PUBLIC.some((p) => pathname.startsWith(p))) return NextResponse.next();
 
   // The cookie first: without one there's nothing to check. Before the app
-  // has its client id nobody can be signed in, whatever cookie they carry
-  // (on localhost, another Sandbox app's cookie is sent to every port).
+  // is set up nobody can be signed in, whatever cookie they carry (on
+  // localhost, another Sandbox app's cookie is sent to every port).
   const token = sessionToken(request.cookies);
   let signedIn = false;
-  if (token && process.env.SANDBOX_AUTH_CLIENT_ID) {
+  if (token && missingSettings().length === 0) {
     const cfg = resolveConfig();
     const session = await readSession(cfg, token);
     signedIn = session !== null && !(await revoked(cfg, session));

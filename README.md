@@ -3,31 +3,23 @@
 A tiny app where Sandbox members sign in with their Sandbox account. Copy it,
 put it online, then ask your AI agent (Claude, Cursor…) to build your idea on top.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fsandbox-is%2Fsandbox-starter&project-name=my-sandbox-app&repository-name=my-sandbox-app&env=SANDBOX_AUTH_CLIENT_SESSION_SECRET&envDescription=A+long+random+string+that+signs+your+session+cookie.+Use+%22Make+one+for+me%22+on+the+Vibes+page.&envLink=https%3A%2F%2Fmembers.sandbox.is%2Fvibes)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fsandbox-is%2Fsandbox-starter&project-name=my-sandbox-app&repository-name=my-sandbox-app)
 
-## Get it working (about 15 minutes, plus waiting for approval)
+## Get it working
 
-1. **Get a session secret.** On the [Vibes page](https://members.sandbox.is/vibes),
-   under *Sign in with Sandbox → Add two settings*, click **Make one for me** and copy it.
-2. **Click Deploy with Vercel** above. Sign in to GitHub and Vercel when asked,
-   and paste the secret into `SANDBOX_AUTH_CLIENT_SESSION_SECRET`.
-   This makes your own copy of the code and puts it online.
-3. **Copy your address**, like `https://my-sandbox-app.vercel.app`.
-   It's shown when the deploy finishes.
-4. **Link your app** on the [Vibes page](https://members.sandbox.is/vibes).
-   Give it a name, paste the address (nothing after `.app`), and put `3000`
-   as the local port. Click **Ask to link**.
-5. **Wait for an admin to approve it.** The Vibes page then shows your app's ID.
-6. **Add the ID.** In Vercel, open your project → **Settings → Environment Variables**,
-   add `SANDBOX_AUTH_CLIENT_ID` with your app's ID, then **Deployments → Redeploy**.
-7. **Sign in.** Open your address and click the Sign in with Sandbox button.
-   You should see your name and photo.
+1. **Click Deploy with Vercel** above. Sign in to GitHub and Vercel when asked.
+   You get your own copy of the code, online in about 2 minutes.
+2. **Open your app.** It shows your address and walks you through linking it
+   on the [Vibes page](https://members.sandbox.is/vibes).
+3. **Once an admin approves it**, add the two settings in Vercel and redeploy.
+   Your app tells you which ones.
+4. **Sign in.** You should see your name and photo.
 
-Now open your copy of the code with your agent and **ask it to build your idea.**
-It will find its instructions in `AGENTS.md`.
+Now open your copy of the code with your AI agent and **ask it to build your idea.**
+It finds its instructions in `AGENTS.md`. Every change it pushes to GitHub goes
+online by itself.
 
-> Never paste your secret or app ID into a chat with your agent. Tell it the
-> setting names instead; it knows where they go.
+> Never paste your settings into a chat with your agent. Tell it the names instead.
 
 ## Working on your computer
 
@@ -45,7 +37,9 @@ Sign-in on your computer works only if you gave port `3000` when you linked the 
 
 | what you see | what to do |
 |---|---|
-| "This app isn't linked to Sandbox yet" | Do steps 4–6. After adding the ID, redeploy. |
+| "Almost there" instead of a sign-in button | Setup isn't finished. Follow the steps on that page. |
+| Settings added but nothing changed | Vercel only picks up new settings after a redeploy. |
+| Sign-in fails on a draft or preview address | Sign-in only works at the address you linked, not on Vercel's preview links. |
 | No sign-in button | The ID is mistyped, or the app isn't approved yet. |
 | Sandbox says the return address isn't allowed | You're on a different address from the one you linked. A new address means linking again. |
 | Signed in, but sent back to the login page | The session secret changed. Sign in again. |
