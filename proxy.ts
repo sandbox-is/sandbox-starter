@@ -3,14 +3,14 @@
 // Pattern from the sandbox-auth README ("Gate pages").
 import { NextRequest, NextResponse } from "next/server";
 import { resolveConfig, readSession, revoked, sessionToken } from "sandbox-auth/core";
-import { missingSettings, pretendSignIn } from "@/lib/setup";
+import { missingSettings, testSignIn } from "@/lib/setup";
 
 const PUBLIC = ["/login", "/api/auth"];
 
 export default async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   if (PUBLIC.some((p) => pathname.startsWith(p))) return NextResponse.next();
-  if (pretendSignIn()) return NextResponse.next();
+  if (testSignIn()) return NextResponse.next();
 
   // The cookie first: without one there's nothing to check. Before the app
   // is set up nobody can be signed in, whatever cookie they carry (on

@@ -7,8 +7,8 @@ export function missingSettings() {
 }
 
 // While building on your own computer, before the app is set up, everyone is
-// signed in as a pretend member so every page can be built and tried.
+// signed in as a test member so every page can be built and tried.
 // Never on Vercel: `next build` and `next start` always run as "production".
-export function pretendSignIn() {
+export function testSignIn() {
   return process.env.NODE_ENV === "development" && missingSettings().length > 0;
 }
