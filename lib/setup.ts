@@ -5,3 +5,10 @@ export const SETTINGS = ["SANDBOX_AUTH_CLIENT_ID", "SANDBOX_AUTH_CLIENT_SESSION_
 export function missingSettings() {
   return SETTINGS.filter((name) => !process.env[name]);
 }
+
+// While building on your own computer, before the app is set up, everyone is
+// signed in as a pretend member so every page can be built and tried.
+// Never on Vercel: `next build` and `next start` always run as "production".
+export function pretendSignIn() {
+  return process.env.NODE_ENV === "development" && missingSettings().length > 0;
+}

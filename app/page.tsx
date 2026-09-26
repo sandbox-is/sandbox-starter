@@ -1,9 +1,9 @@
 import { redirect } from "next/navigation";
-import { getSession } from "sandbox-auth/next";
+import { getMember } from "@/lib/session";
 
 export default async function Home() {
   // proxy.ts already sends signed-out people to /login; this is a backstop.
-  const member = await getSession();
+  const member = await getMember();
   if (!member) redirect("/login");
 
   return (

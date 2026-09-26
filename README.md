@@ -8,17 +8,17 @@ put it online, then ask your AI agent (Claude, Cursor…) to build your idea on 
 ## Get it working
 
 1. **Click Deploy with Vercel** above. Sign in to GitHub and Vercel when asked.
-   You get your own copy of the code, online in about 2 minutes.
-2. **Open your app.** It shows your address and walks you through linking it
-   on the [Vibes page](https://members.sandbox.is/vibes).
-3. **Once an admin approves it**, ask your AI agent to *"finish Sandbox setup"*
+   You get your own copy of the code, online in about 2 minutes. Nobody can
+   sign in yet, so it's fine for it to be unfinished.
+2. **Build your idea.** Open your copy with your AI agent and ask it to run the
+   app on your computer. You're signed in as a pretend "Test Member", so you can
+   build and try every page. Each change your agent pushes to GitHub goes online by itself.
+3. **Link it** on the [Vibes page](https://members.sandbox.is/vibes) when it's
+   ready to show. Your app shows you its address and what to fill in.
+4. **Once an admin approves it**, ask your agent to *"finish Sandbox setup"*
    and give it your app's ID. It adds the settings and redeploys.
    (Or do it by hand: your app shows you how.)
-4. **Sign in.** You should see your name and photo.
-
-Now open your copy of the code with your AI agent and **ask it to build your idea.**
-It finds its instructions in `AGENTS.md`. Every change it pushes to GitHub goes
-online by itself.
+5. **Sign in for real** with Sandbox. You should see your name and photo.
 
 > Your app's ID isn't secret. The session secret is: never paste it into a chat.
 > The setup script makes it for you, so nobody has to see it.
@@ -29,11 +29,12 @@ online by itself.
 git clone <your repo>
 cd <your repo>
 npm install
-cp .env.example .env.local   # then fill in the two values in .env.local
-npm run dev                  # open http://localhost:3000
+npm run dev     # open http://localhost:3000
 ```
 
-Sign-in on your computer works only if you gave port `3000` when you linked the app.
+Until your app is set up, you're signed in as a pretend "Test Member" there.
+After `npm run setup`, real Sandbox sign-in works on your computer too, as long
+as you gave port `3000` when you linked the app.
 
 ## If something's wrong
 

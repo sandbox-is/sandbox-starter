@@ -1,5 +1,6 @@
+import Link from "next/link";
 import { headers } from "next/headers";
-import { SETTINGS } from "@/lib/setup";
+import { SETTINGS, pretendSignIn } from "@/lib/setup";
 import { CopyButton } from "./copy-button";
 
 const VIBES = "https://members.sandbox.is/vibes";
@@ -19,9 +20,21 @@ export async function SetupGuide({ missing }: { missing: string[] }) {
       <div>
         <h1 className="text-2xl font-semibold">Almost there</h1>
         <p className="mt-1 text-neutral-500">
-          Your app is online. Link it to Sandbox so members can sign in.
+          {local
+            ? "Link your app to Sandbox so members can sign in."
+            : "Your app is online. Link it to Sandbox so members can sign in."}
         </p>
       </div>
+
+      {pretendSignIn() && (
+        <div className="rounded-md bg-amber-50 p-3 text-sm text-amber-900">
+          While you build, you&apos;re signed in as a pretend member.{" "}
+          <Link className="underline" href="/">
+            Back to your app
+          </Link>
+          . Link it when it&apos;s ready to show.
+        </div>
+      )}
 
       <ol className="space-y-5">
         <li>
