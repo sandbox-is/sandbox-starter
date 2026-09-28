@@ -91,6 +91,23 @@ uploads their changes, and Vercel puts them online.
   plan only commits by the project owner deploy, from an email linked to their
   GitHub account (`git config user.email`).
 
+### The README
+
+`README.md` starts out as the starter's own: how to make a new app from this
+template. Once the person's idea takes shape, and at the latest before the
+first `npm run online`, replace it with one about their app, for members who
+find the repo and want to use it or help:
+
+- what the app is, and who it's for
+- the live address, once it's online
+- how to help: `git clone`, `npm install`, `npm run dev` (test sign-in works
+  straight away), then a pull request; `AGENTS.md` has the rest
+- a line saying it was built from https://github.com/sandbox-is/sandbox-starter
+
+Leave out the starter's banner, screenshots and Deploy button. The repo is
+public, so no secrets, member data or private notes. Keep it up to date as the
+app changes. `npm run online` warns while it's still the starter's.
+
 ### Finishing setup
 
 When the person says their app is approved (or asks you to finish setup), ask

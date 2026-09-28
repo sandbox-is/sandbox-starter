@@ -36,6 +36,16 @@ function helpFiles() {
   return found;
 }
 
+// The starter's README tells people how to make a new app from the template;
+// an app's own README should say what the app is. This line is only in the
+// starter's.
+const STARTER_README = "--example https://github.com/sandbox-is/sandbox-starter";
+const README_NOTE =
+  "README.md is still the starter's, so the repo won't say what this app is.\n" +
+  'Ask your agent to "write a README for this app" (see "The README" in AGENTS.md).';
+const starterReadme = () =>
+  existsSync("README.md") && readFileSync("README.md", "utf8").includes(STARTER_README);
+
 const args = process.argv.slice(2);
 const option = (name) => {
   const i = args.indexOf(name);
@@ -129,6 +139,7 @@ const deployed = Boolean(project?.targets?.production);
 if (!go) {
   const step = (done, text) => console.log(`  ${done ? "✓" : "•"} ${text}`);
   if (ownerNote) console.log(`\n${ownerNote}`);
+  if (starterReadme()) console.log(`\n${README_NOTE}`);
   console.log("\nHere's what will happen:\n");
   step(onGitHub, onGitHub
     ? `Already on GitHub: ${repoUrl}`
@@ -285,6 +296,7 @@ if (owner !== ORG) {
       : `\n${JOIN_ORG}\nOnce you're in, you can move this app there (the repo's Settings → Transfer ownership).`,
   );
 }
+if (starterReadme()) console.log(`\n${README_NOTE}`);
 const envLocal = existsSync(".env.local") ? readFileSync(".env.local", "utf8") : "";
 if (!/^SANDBOX_AUTH_CLIENT_ID=\S/m.test(envLocal)) {
   console.log("\nNext: link that address on https://members.sandbox.is/vibes (with local port 3000),");
